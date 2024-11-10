@@ -1,0 +1,10 @@
+#!/bin/sh
+'''exec' /home/jeanphilo/Documents/Ichigo_Documents/03_社会科学_商业_法律/生财有道/创业项目/daoplus/daoplus-venv/bin/python3 "$0" "$@"
+' '''
+# -*- coding: utf-8 -*-
+import re
+import sys
+from mako.cmd import cmdline
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(cmdline())

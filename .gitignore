@@ -1,0 +1,31 @@
+# Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyd
+
+# Environment variables
+.env
+
+# Database files
+*.sqlite3
+migrations/
+
+# macOS files
+.DS_Store
+
+# Node files (in case you use npm for JS dependencies)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Virtual environment
+venv/
+.venv/
+
+# Logs
+*.log
+
+# Java compiled files
+*.class
