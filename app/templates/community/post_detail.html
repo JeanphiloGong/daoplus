@@ -1,0 +1,39 @@
+<!-- app/templates/community/post_detail.html -->
+{% extends "community/base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <div class="post-detail">
+        <h1>{{ post.title }}</h1>
+        <p>{{ post.content }}</p>
+        <p><small>Posted by {{ post.user.username }} on {{ post.created_at }}</small></p>
+
+        <h3>Comments</h3>
+        <div class="comments">
+            {% for comment in comments %}
+                <div class="comment">
+                    <p>{{ comment.content }}</p>
+                    <p><small>Commented by {{ comment.user.username }} on {{ comment.created_at }}</small></p>
+                    {% if comment.user.id == current_user.id %}
+                        <form action="{{ url_for('community.delete_comment', comment_id=comment.id) }}" method="POST">
+                            <button type="submit">Delete</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>No comments yet.</p>
+            {% endfor %}
+        </div>
+
+        <h3>Add a Comment</h3>
+        <form action="{{ url_for('community.new_comment', post_id=post.id) }}" method="POST">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.content.label }}<br>
+                {{ form.content(rows=4, class="form-control") }}
+            </div>
+            <button type="submit">Add Comment</button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,8 @@
+<form action="{{ url_for('community.moderate_flagged_post', post_id=post.id) }}" method="post">
+    <h3>Moderate Post: {{ post.title }}</h3>
+    <div class="form-group">
+        <label for="action">Choose Action:</label><br>
+        <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+        <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+    </div>
+</form>

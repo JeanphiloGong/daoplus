@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2>Your Dashboard</h2>
+    
+    <h3>Notifications</h3>
+    <ul>
+        {% for notification in current_user.notifications %}
+            <li>
+                {% if notification.target_type == 'post' %}
+                    <strong>{{ notification.action }} your post "{{ notification.target_id }}"</strong>
+                {% elif notification.target_type == 'user' %}
+                    <strong>{{ notification.action }} you</strong>
+                {% endif %}
+                <small>{{ notification.created_at }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+    
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2>Flagged Posts</h2>
+    
+    {% if posts %}
+        <p>Below is a list of posts that have been flagged for moderation:</p>
+        <ul>
+            {% for post in posts %}
+                <li>
+                    <strong>{{ post.title }}</strong><br>
+                    <p>{{ post.content }}</p>
+                    <p><small>Flagged by users for inappropriate content.</small></p>
+                    <form action="{{ url_for('community.moderate_flagged_post', post_id=post.id) }}" method="post">
+                        <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                        <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                    </form>
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No flagged posts at the moment.</p>
+    {% endif %}
+    
+{% endblock %}

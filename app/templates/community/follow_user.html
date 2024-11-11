@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2>{{ user.username }}'s Profile</h2>
+    <p><strong>Joined:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+
+    <!-- Follow Button -->
+    {% if current_user.is_authenticated %}
+        {% set already_following = false %}
+        {% for follow in current_user.following %}
+            {% if follow.followed_id == user.id %}
+                {% set already_following = true %}
+                <button class="btn btn-secondary" disabled>Following</button>
+            {% endif %}
+        {% endfor %}
+        
+        {% if not already_following %}
+            <form action="{{ url_for('community.follow_user', user_id=user.id) }}" method="post">
+                <button type="submit" class="btn btn-primary">Follow</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <p>You must be logged in to follow this user.</p>
+    {% endif %}
+    
+{% endblock %}

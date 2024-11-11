@@ -1,0 +1,23 @@
+<!-- app/templates/community/profile.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ current_user.username }}'s Profile</title>
+</head>
+<body>
+    <h1>{{ current_user.username }}'s Profile</h1>
+    
+    <div>
+        <h3>Reward Points: {{ rewards }}</h3>
+        <p>Earn points by engaging with the community, posting content, liking posts, and more!</p>
+    </div>
+    
+    <div>
+        <h4>Recent Posts</h4>
+        <!-- Display user’s recent posts, comments, etc. -->
+    </div>
+</body>
+</html>

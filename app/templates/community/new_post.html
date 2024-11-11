@@ -1,0 +1,20 @@
+<!-- app/templates/community/new_post.html -->
+{% extends "community/base.html" %}
+
+{% block title %}Create New Post{% endblock %}
+
+{% block content %}
+    <h1>Create a New Post</h1>
+    <form method="POST" action="{{ url_for('community.new_post') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}
+        </div>
+        <div>
+            {{ form.content.label }}<br>
+            {{ form.content(rows=5, class="form-control") }}
+        </div>
+        <button type="submit">Create Post</button>
+    </form>
+{% endblock %}

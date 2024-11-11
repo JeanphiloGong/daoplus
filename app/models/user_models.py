@@ -1,5 +1,6 @@
 # Importing necessary modules from the app and werkzeug
 from app import db  # Importing the database instance from the app module
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash  # Functions for password hashing
 
 # Define the User class as a model for the 'users' table in the database
@@ -9,6 +10,9 @@ class User(db.Model):
     username = db.Column(db.String(120), unique=True, nullable=False)  # Username must be unique and cannot be null
     email = db.Column(db.String(120), unique=True, nullable=False)  # Email must be unique and cannot be null
     password_hash = db.Column(db.String(128))  # Stores the hashed password, not the plain password
+
+    # Relationship with Reward model
+    rewards = db.relationship('Reward', backref='user', lazy=True)
 
     # Method to set the user's password (by hashing it before storing)
     def set_password(self, password):
@@ -23,3 +27,36 @@ class User(db.Model):
     # Represent the user object as a string (optional but helpful for debugging)
     def __repr__(self):
         return f"<User {self.username}>"
+    
+
+# Like Model (User liking a post)
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='likes', lazy=True)
+    post = db.relationship('Post', backref='likes', lazy=True)
+
+# Follow Model (User following another user)
+class Follow(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    follower = db.relationship('User', foreign_keys=[follower_id], backref='following', lazy=True)
+    followed = db.relationship('User', foreign_keys=[followed_id], backref='followers', lazy=True)
+
+class Reward(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    points = db.Column(db.Integer, default=0)
+
+    user = db.relationship('User', backref=db.backref('rewards', lazy=True))
+
+    def __repr__(self):
+        return f"<Reward(user_id={self.user_id}, points={self.points})>"
+
+
