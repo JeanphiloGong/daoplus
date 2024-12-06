@@ -9,6 +9,13 @@
         <p>{{ post.content }}</p>
         <p><small>Posted by {{ post.user.username }} on {{ post.created_at }}</small></p>
 
+        <!-- Add Follow Button Here -->
+        <form method="POST" action="{{ url_for('community.follow_user', user_id=post.user.id) }}">
+            <button type="submit" class="btn btn-primary">
+                Follow {{ post.user.username }}
+            </button>
+        </form>
+        
         <h3>Comments</h3>
         <div class="comments">
             {% for comment in comments %}

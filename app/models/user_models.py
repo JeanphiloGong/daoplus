@@ -12,7 +12,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))  # Stores the hashed password, not the plain password
 
     # Relationship with Reward model
-    rewards = db.relationship('Reward', backref='user', lazy=True)
+    rewards = db.relationship('Reward', backref='reward_owner', lazy=True)
 
     # Method to set the user's password (by hashing it before storing)
     def set_password(self, password):
@@ -24,6 +24,23 @@ class User(db.Model):
         # Use werkzeug's check_password_hash function to compare the provided password with the stored hash
         return check_password_hash(self.password_hash, password)
 
+    # Flask-Login required methods
+    def is_authenticated(self):
+        # This is required by Flask-Login, it should return True if the user is authenticated
+        return True  # You can implement your own logic here if needed
+
+    def is_active(self):
+        # This is required by Flask-Login, it should return True if the user is active
+        return True  # You can implement your own logic here if needed
+
+    def is_anonymous(self):
+        # Return False, as this is a typical non-anonymous user
+        return False
+
+    def get_id(self):
+        # This returns the user's ID for Flask-Login to manage sessions
+        return str(self.id)  # Flask-Login expects this to be a string
+    
     # Represent the user object as a string (optional but helpful for debugging)
     def __repr__(self):
         return f"<User {self.username}>"
@@ -54,7 +71,7 @@ class Reward(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     points = db.Column(db.Integer, default=0)
 
-    user = db.relationship('User', backref=db.backref('rewards', lazy=True))
+    user = db.relationship('User', backref=db.backref('user_rewards', lazy=True))
 
     def __repr__(self):
         return f"<Reward(user_id={self.user_id}, points={self.points})>"

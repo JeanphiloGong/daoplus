@@ -5,10 +5,12 @@ from app.models.user_models import User
 from werkzeug.security import check_password_hash
 from flask_login import login_user, login_required, logout_user
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+auth = Blueprint('auth', __name__)
+
+from . import routes
 
 # Route for the registration page
-@auth_bp.route('/register', methods=['GET', 'POST'])
+@auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -47,7 +49,7 @@ def register():
 
 
 # Route for the login page
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -61,7 +63,7 @@ def login():
             # Log the user in
             login_user(user)
             flash('Login successful!', 'success')
-            return redirect(url_for('main.index'))  # Redirect to the homepage or dashboard
+            return redirect(url_for('community.home'))  # Redirect to the homepage or dashboard
 
         # If login fails
         flash('Invalid username or password, please try again.', 'danger')
@@ -71,7 +73,7 @@ def login():
 
 
 # Route for logging out
-@auth_bp.route('/logout')
+@auth.route('/logout')
 @login_required
 def logout():
     logout_user()

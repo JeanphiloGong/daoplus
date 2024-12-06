@@ -13,8 +13,12 @@ community = Blueprint('community', __name__)
 
 # Home route to display all posts
 @community.route('/')
-@login_required  # Optional: Only logged-in users can view the homepage
 def home():
+    print("Rendering index.html")
+    # try:
+    #    return render_template('community/index.html')
+    # except TemplateNotFound as e:
+    #    return f"Template not found: {str(e)}"
     posts = Post.query.all()  # Retrieve all posts from the database
     return render_template('community/index.html', posts=posts)
 
@@ -40,14 +44,15 @@ def profile():
 @community.route('/posts')
 def post_list():
     posts = Post.query.all()  # Get all posts from the database
-    return render_template('post_list.html', posts=posts)
+    return render_template('community/post_list.html', posts=posts)
 
 # Route for displaying a single post and its comments
 @community.route('/posts/<int:post_id>')
 def post_detail(post_id):
     post = Post.query.get_or_404(post_id)  # Get a specific post by ID
     comments = Comment.query.filter_by(post_id=post.id).all()  # Get comments for that post
-    return render_template('post_detail.html', post=post, comments=comments)
+    form = CommentForm()
+    return render_template('community/post_detail.html', post=post, comments=comments,form=form)
 
 # Route for creating a new post
 @community.route('/posts/new', methods=['GET', 'POST'])
@@ -74,6 +79,8 @@ def new_post():
 @login_required
 def edit_post(post_id):
     post = Post.query.get_or_404(post_id)
+    comment_form = CommentForm()
+    post_form = PostForm()
     
     # Check if the current user is the author of the post
     if post.user_id != current_user.id:
@@ -85,9 +92,12 @@ def edit_post(post_id):
         post.content = request.form['content']
         db.session.commit()
         flash('Your post has been updated!', 'success')
-        return redirect(url_for('community.post_detail', post_id=post.id))
+        return redirect(url_for('community.post_detail', post_id=post.id, form=comment_form))
     
-    return render_template('edit_post.html', post=post)
+    # For GET request, populate the form with the existing post data
+    post_form.title.data = post.title
+    post_form.content.data = post.content
+    return render_template('community/edit_post.html', post=post, form=post_form)
 
 # Route for deleting a post
 @community.route('/posts/<int:post_id>/delete', methods=['POST'])
@@ -128,12 +138,6 @@ def like_post(post_id):
         flash('You have already liked this post.', 'warning')
     
     return redirect(url_for('community.view_post', post_id=post.id))
-
-@community.route('/post/<int:post_id>')
-@login_required
-def view_post(post_id):
-    post = Post.query.get_or_404(post_id)  # Retrieve the post by its ID
-    return render_template('community/post_detail.html', post=post)
 
 
 # Route for creating a new comment on a post
@@ -247,7 +251,7 @@ def follow_user(user_id):
     else:
         flash(f'You are already following {user_to_follow.username}.', 'warning')
     
-    return redirect(url_for('community.view_user_profile', user_id=user_to_follow.id))
+    return redirect(url_for('community.profile', user_id=user_to_follow.id))
 
 @community.route('/search', methods=['GET', 'POST'])
 def search():
