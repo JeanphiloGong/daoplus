@@ -1,4 +1,3 @@
-from app import neo4j_driver
 from datetime import datetime
 
 class Post:

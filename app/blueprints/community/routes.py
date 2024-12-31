@@ -1,7 +1,13 @@
+# Import flask package
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_login import login_required, current_user
-from app.models.user_models import Like, Follow, User
-from app.models.post_models import Post, Comment
+
+# Import app models
+from app.models.user_models import   User
+from app.models.like_models import Like
+from app.models.follow_models import  Follow
+from app.models.post_models import Post
+from app.models.comment_models import  Comment
 from app.models.notification_models import Notification
 from app.blueprints.community.forms import PostForm, CommentForm
 from app.services.reward_service import add_reward_points, get_user_rewards

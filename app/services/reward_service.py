@@ -1,29 +1,60 @@
-# app/services/reward_service.py
-
-from app.models.user_models import Reward
-from app import db
+from app.services.neo4j_service import Neo4jService
 
 def add_reward_points(user, points):
     """Add reward points to a user."""
-    reward = Reward.query.filter_by(user_id=user.id).first()
+    # Check if the user already has a reward record
+    query = """
+    MATCH (u:User {id: $user_id})-[:HAS_REWARD]->(r:Reward)
+    RETURN r
+    """
+    result = user.neo4j_service.execute_query(query, {"user_id": user.id})
+    reward = result.single()
+
     if reward:
-        reward.points += points
+        # If reward node exists, increment the points
+        query = """
+        MATCH (u:User {id: $user_id})-[:HAS_REWARD]->(r:Reward)
+        SET r.points = r.points + $points
+        RETURN r
+        """
+        user.neo4j_service.execute_query(query, {"user_id": user.id, "points": points})
     else:
-        reward = Reward(user_id=user.id, points=points)
-        db.session.add(reward)
-    db.session.commit()
+        # If no reward node exists, create a new one
+        query = """
+        MATCH (u:User {id: $user_id})
+        CREATE (u)-[:HAS_REWARD]->(r:Reward {points: $points})
+        RETURN r
+        """
+        user.neo4j_service.execute_query(query, {"user_id": user.id, "points": points})
 
 def deduct_reward_points(user, points):
     """Deduct reward points from a user."""
-    reward = Reward.query.filter_by(user_id=user.id).first()
-    if reward and reward.points >= points:
-        reward.points -= points
-        db.session.commit()
+    # Check if the user has enough reward points
+    query = """
+    MATCH (u:User {id: $user_id})-[:HAS_REWARD]->(r:Reward)
+    RETURN r.points AS points
+    """
+    result = user.neo4j_service.execute_query(query, {"user_id": user.id})
+    reward = result.single()
+
+    if reward and reward["points"] >= points:
+        # Deduct points if sufficient points are available
+        query = """
+        MATCH (u:User {id: $user_id})-[:HAS_REWARD]->(r:Reward)
+        SET r.points = r.points - $points
+        RETURN r
+        """
+        user.neo4j_service.execute_query(query, {"user_id": user.id, "points": points})
+        return True
     else:
         return False  # Insufficient points
-    return True
 
 def get_user_rewards(user):
     """Retrieve the user's total reward points."""
-    reward = Reward.query.filter_by(user_id=user.id).first()
-    return reward.points if reward else 0
+    query = """
+    MATCH (u:User {id: $user_id})-[:HAS_REWARD]->(r:Reward)
+    RETURN r.points AS points
+    """
+    result = user.neo4j_service.execute_query(query, {"user_id": user.id})
+    reward = result.single()
+    return reward["points"] if reward else 0

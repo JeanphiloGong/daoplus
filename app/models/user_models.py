@@ -1,4 +1,3 @@
-from app import neo4j_driver
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 

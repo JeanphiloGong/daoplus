@@ -26,15 +26,28 @@ class Neo4jService:
         user = app.config.get("NEO4J_USER") or os.getenv("NEO4J_USER")
         password = app.config.get("NEO4J_PASSWORD") or os.getenv("NEO4J_PASSWORD")
 
+        # Log the retrieved values (for debugging purposes)
+        print(f"Neo4j URI: {uri}, User: {user}")  # Don't log passwords for security reasons
+
         if not all([uri, user, password]):
             raise ValueError("Neo4j connection details are missing. Please set NEO4J_URI, NEO4J_USER, and NEO4J_PASSWORD.")
 
-        # Initialize the Neo4j driver
-        self.driver = GraphDatabase.driver(uri, auth=(user, password))
-        app.neo4j_service = self  # Attach the service to the app instance
+        # Try initializing the Neo4j driver
+        try:
+            self.driver = GraphDatabase.driver(uri, auth=(user, password))
+            # Test if the connection is successful by running a simple query
+            with self.driver.session() as session:
+                session.run("RETURN 1")  # Simple query to check if the driver is working
+            print("Neo4j driver initialized successfully.")  # Success message
+        except Exception as e:
+            raise ConnectionError(f"Failed to initialize Neo4j driver: {str(e)}")
+
+        # Attach the service to the app instance
+        app.neo4j_service = self
 
         # Register a teardown function to close the driver when the app context ends
         app.teardown_appcontext(self.close)
+
 
     def close(self, exception=None):
         """
