@@ -14,12 +14,23 @@ from app.services.reward_service import add_reward_points, get_user_rewards
 
 community = Blueprint('community', __name__)
 
-# Home route to display all posts
 @community.route('/')
 def home():
+    # Check if current_app is available and loaded
+    if not current_app:
+        raise RuntimeError("current_app is not available!")
+    
+    # You can also print the current app for debugging purposes
+    print(f"Current App: {current_app.name}")
+    
     print("Rendering index.html")
-    # Fetch posts from Neo4j
-    posts = Post.get_all_posts(current_app.neo4j_service)
+    try:
+        # Fetch posts from Neo4j
+        posts = Post.get_all_posts(current_app.neo4j_service)
+    except AttributeError:
+        print("Neo4j service is not initialized!")
+        posts = []  # Fallback if the Neo4j service is not properly initialized
+
     return render_template('community/index.html', posts=posts)
 
 # Route for login (placeholder)

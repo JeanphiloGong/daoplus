@@ -64,11 +64,23 @@ class Neo4jService:
         Returns the query result as a list of dictionaries.
         """
         if not self.driver:
-            raise ConnectionError("Neo4j driver is not initialized.")
+            print("Neo4j driver not initialized. Attempting to initialize...")
+            try:
+                self.init_app(current_app)  # Reinitialize if not done yet
+            except Exception as e:
+                print(f"Error initializing Neo4j driver: {e}")
+                raise ConnectionError("Neo4j driver initialization failed.")
         
-        with self.driver.session() as session:
-            result = session.run(query, parameters)
-            return [record.data() for record in result]
+        if not self.driver:
+            raise ConnectionError("Neo4j driver is still not initialized. Unable to execute query.")
+        
+        try:
+            with self.driver.session() as session:
+                result = session.run(query, parameters)
+                return [record.data() for record in result]
+        except Exception as e:
+            print(f"Error executing query: {e}")
+            raise ConnectionError("Failed to execute Cypher query on Neo4j.")
 
     def execute_write(self, query, parameters=None):
         """
